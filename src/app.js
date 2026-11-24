@@ -13,7 +13,20 @@ if (env.isProd) app.set("trust proxy", 1); // needed behind Nginx / Render / Rai
 
 // Middleware
 app.use(helmet());
-app.use(cors({ origin: env.clientUrl, credentials: true })); // credentials: true = allow the refresh cookie
+
+const allowedOrigins = env.clientUrl
+  .split(",")
+  .map((s) => s.trim().replace(/\/+$/, "")) // ignore trailing "/"
+  .filter(Boolean);
+
+app.use(
+  cors({
+    // reply with ONE matching origin, never the whole list
+    origin: (origin, cb) => cb(null, !origin || allowedOrigins.includes(origin)),
+    credentials: true,
+  })
+);
+
 app.use(express.json({ limit: "10kb" }));
 app.use(cookieParser());
 
