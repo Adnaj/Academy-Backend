@@ -62,4 +62,29 @@ const sendLeadEmail = (lead) => {
   });
 };
 
-module.exports = { sendOtpEmail, sendLeadEmail, buildLeadEmail };
+// ---- "new job application" notification (CV attached) ----
+// Goes to CAREERS_NOTIFY_EMAIL (falls back to the lead recipients).
+const sendCareerEmail = ({ application: a, attachment }) => {
+  const rows = [
+    ["Name", a.fullName], ["Email", a.email], ["Phone", a.phone], ["Role", a.position],
+    ["Current city", a.location], ["Experience", a.experience], ["Message", a.message],
+  ];
+  const { text, html } = buildLeadEmail({
+    formLabel: "Careers - job application",
+    name: a.fullName,
+    phone: a.phone,
+    rows,
+    submittedAt: a.createdAt,
+  });
+  return transporter.sendMail({
+    from: `"Catalyst SkillHub Careers" <${env.email.user}>`,
+    to: env.careers.notifyTo,
+    replyTo: oneLine(a.email), // hit Reply to answer the applicant directly
+    subject: oneLine(`New application - ${a.position}: ${a.fullName} (${a.phone})`),
+    text,
+    html,
+    attachments: [attachment],
+  });
+};
+
+module.exports = { sendOtpEmail, sendLeadEmail, sendCareerEmail, buildLeadEmail };

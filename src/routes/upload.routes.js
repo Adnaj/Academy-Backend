@@ -24,6 +24,10 @@ const FOLDERS = {
     maxSize: 2 * MB,
   },
    
+  "category-images": {
+    types: { "image/jpeg": ".jpg", "image/png": ".png", "image/webp": ".webp" },
+    maxSize: 2 * MB,
+  },
   "blog-images": {
     types: { "image/jpeg": ".jpg", "image/png": ".png", "image/webp": ".webp" },
     maxSize: 5 * MB,
