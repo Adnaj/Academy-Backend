@@ -28,4 +28,11 @@ module.exports = {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
+    leads: {
+    // who gets the "new lead" emails: LEADS_NOTIFY_EMAIL=a@x.com,b@x.com (defaults to EMAIL_USER)
+    notifyTo: (process.env.LEADS_NOTIFY_EMAIL || process.env.EMAIL_USER)
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean),
+  },
 };

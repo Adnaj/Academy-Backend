@@ -18,4 +18,13 @@ const refreshLimiter = rateLimit({
   message: { success: false, message: "Too many requests. Please try again later." },
 });
 
-module.exports = { authLimiter, refreshLimiter };
+// public lead forms (contact / enquiry): 15 submissions per 15 minutes per IP
+const leadLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 15,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: "Too many submissions. Please try again later." },
+});
+
+module.exports = { authLimiter, refreshLimiter, leadLimiter };

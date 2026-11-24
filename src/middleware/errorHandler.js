@@ -8,10 +8,19 @@ const notFound = (req, res) => {
 const errorHandler = (err, req, res, next) => {
   let status = err.statusCode || 500;
   let message = err.message;
+  let errors = err.errors;
 
   if (err.code === 11000) {
     status = 409;
-    message = "This email is already registered";
+    const field = Object.keys(err.keyPattern || {})[0];
+    message = field === "email" ? "This email is already registered" : `${field || "Value"} already exists`;
+  } else if (err.name === "ValidationError") {
+    status = 400;
+    errors = Object.values(err.errors).map((e) => ({ field: e.path, message: e.message }));
+    message = errors[0]?.message || "Validation failed";
+  } else if (err.name === "CastError") {
+    status = 400;
+    message = `Invalid ${err.path}`;
   } else if (err.type === "entity.parse.failed") {
     status = 400;
     message = "Invalid JSON body";
@@ -20,7 +29,7 @@ const errorHandler = (err, req, res, next) => {
     if (env.isProd) message = "Something went wrong";
   }
 
-  res.status(status).json({ success: false, message, ...(err.errors && { errors: err.errors }) });
+  res.status(status).json({ success: false, message, ...(errors && { errors }) });
 };
 
 module.exports = { notFound, errorHandler };
